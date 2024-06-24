@@ -5,6 +5,7 @@ pipeline {
             steps {
                 // Checkout your repository if needed
                 git 'https://github.com/yunukolusuvarna/declarative.git'
+                branch:'main'
             }
         }
 
