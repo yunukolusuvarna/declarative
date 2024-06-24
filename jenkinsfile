@@ -1,12 +1,5 @@
 pipeline {
     agent any
-    
-    environment {
-        // Define MAVEN_HOME and adjust PATH
-        MAVEN_HOME = tool name: 'Maven', type: 'maven'
-        PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
-    }
-
     stages {
         stage('Clone') {
             steps {
@@ -16,24 +9,32 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
-                // Use 'sh' step to run Maven commands
-                sh "${env.MAVEN_HOME}/bin/mvn clean package"
-            }
-        }
+		steps {
+			sh 'mvn install'
+		}
+	}	
+ 
+	stage ('Compile'){
+	        steps {
+			sh 'mvn clean compile'
+                }
+	}
 
-        stage('Test') {
-            steps {
-                sh "${env.MAVEN_HOME}/bin/mvn test"
-            }
-        }
+	stage('Run Tests') {
+	    steps {
+	       sh 'mvn test'
+	    }
+	}
 
-        stage('Deploy') {
+        stage('Package as WAR') {
             steps {
-                sh "${env.MAVEN_HOME}/bin/mvn deploy"
-                // Add additional deployment steps if needed
+                sh 'mvn package'
             }
         }
+	stage('Deployment') {
+	   steps {
+		sh 'sshpass -p vpath scp target/gamutkart.war vpath@172.31.16.232:/home/vpath/apache-tomcat-8.5.100/webapps'
+	}
     }
 
     post {
